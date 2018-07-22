@@ -1,7 +1,13 @@
 {
   "name": "cipher-md",
   "version": "0.1.0",
+  "author": {
+    "name": "Kodatos",
+    "email": "kodatosdev@gmail.com"
+  },
+  "main": "public/main.js",
   "private": true,
+  "homepage": "./",
   "dependencies": {
     "react": "^16.4.1",
     "react-dom": "^16.4.1",
@@ -12,10 +18,36 @@
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
-    "flow": "flow"
+    "flow": "flow",
+    "electron-dev": "cross-env NODE_ENV=development concurrently \"BROWSER=none npm run start\" \"wait-on http://localhost:3000 && electron .\"",
+    "package": "build -c.extraMetadata.main=build/main.js",
+    "prepackage": "npm run build"
   },
   "devDependencies": {
-    "eslint": "^5.1.0",
-    "flow-bin": "^0.76.0"
+    "concurrently": "^3.6.0",
+    "cross-env": "^5.2.0",
+    "electron": "^2.0.5",
+    "electron-builder": "^20.24.4",
+    "eslint": "^5.2.0",
+    "eslint-plugin-react": "^7.10.0",
+    "flow-bin": "^0.76.0",
+    "wait-on": "^2.1.0"
+  },
+  "build": {
+    "appId": "com.kodatos.CipherMD",
+    "files": [
+      "build/**/*",
+      "node_modules/**/*"
+    ],
+    "directories": {
+      "buildResources": "assets"
+    },
+    "linux":{
+      "target": [
+        {
+          "target": "7z"
+        }
+      ]
+    }
   }
 }
