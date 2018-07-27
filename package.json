@@ -9,9 +9,13 @@
   "private": true,
   "homepage": "./",
   "dependencies": {
+    "codemirror": "^5.39.2",
     "react": "^16.4.1",
+    "react-codemirror2": "^5.1.0",
     "react-dom": "^16.4.1",
-    "react-scripts": "1.1.4"
+    "react-markdown": "^3.4.0",
+    "react-scripts": "1.1.4",
+    "react-split-pane": "^0.1.82"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -24,13 +28,16 @@
     "prepackage": "npm run build"
   },
   "devDependencies": {
+    "babel-eslint": "^8.2.6",
     "concurrently": "^3.6.0",
     "cross-env": "^5.2.0",
     "electron": "^2.0.5",
     "electron-builder": "^20.24.4",
     "eslint": "^5.2.0",
+    "eslint-plugin-flowtype": "^2.50.0",
     "eslint-plugin-react": "^7.10.0",
     "flow-bin": "^0.76.0",
+    "prettier-eslint": "^8.8.2",
     "wait-on": "^2.1.0"
   },
   "build": {
@@ -42,7 +49,7 @@
     "directories": {
       "buildResources": "assets"
     },
-    "linux":{
+    "linux": {
       "target": [
         {
           "target": "7z"
