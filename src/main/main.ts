@@ -1,9 +1,9 @@
-import electron, { app, BrowserWindow, Menu } from 'electron';
+import { app, BrowserWindow, dialog, Menu, shell } from 'electron';
 
-import fs from 'fs';
-import path from 'path';
+import * as fs from 'fs';
+import * as path from 'path';
 
-let mainWindow: BrowserWindow | null;
+let mainWindow: Electron.BrowserWindow | null;
 const template: Electron.MenuItemConstructorOptions[] = [
   {
     label: 'File',
@@ -69,7 +69,7 @@ const template: Electron.MenuItemConstructorOptions[] = [
 
 function openFile() {
   if (!mainWindow) return;
-  const files = electron.dialog.showOpenDialog(mainWindow, {
+  const files = dialog.showOpenDialog(mainWindow, {
     properties: ['openFile'],
     filters: [
       {
@@ -111,14 +111,14 @@ function createWindow() {
     mainWindow = null;
   });
 
-  const offloadLinks = (e: Event, url: string) => {
+  const offloadLinks = (e: Electron.Event, url: string) => {
     e.preventDefault();
     if (
       mainWindow &&
       url !== mainWindow.webContents.getURL() &&
       url.startsWith('http')
     ) {
-      electron.shell.openExternal(url);
+      shell.openExternal(url);
     }
   };
 

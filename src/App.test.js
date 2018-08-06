@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import App from './App';
+import MarkdownEditor from './components/MarkdownEditor';
 
 //Stub for running codemirror
 global.document.body.createTextRange = function() {
@@ -21,6 +21,6 @@ global.document.body.createTextRange = function() {
 };
 it('renders without crashing', () => {
   const div = document.createElement('div');
-  ReactDOM.render(<App />, div);
+  ReactDOM.render(<MarkdownEditor />, div);
   ReactDOM.unmountComponentAtNode(div);
 });
