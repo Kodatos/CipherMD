@@ -5,7 +5,7 @@
     "name": "Kodatos",
     "email": "kodatosdev@gmail.com"
   },
-  "main": "public/main.js",
+  "main": "public/main.ts",
   "private": true,
   "homepage": "./",
   "dependencies": {
@@ -24,7 +24,7 @@
     "eject": "react-scripts eject",
     "flow": "flow",
     "electron-dev": "cross-env NODE_ENV=development concurrently \"BROWSER=none npm run start\" \"wait-on http://localhost:3000 && electron .\"",
-    "package": "build -c.extraMetadata.main=build/main.js",
+    "package": "build -c.extraMetadata.main=build/main.ts",
     "prepackage": "npm run build"
   },
   "devDependencies": {
@@ -38,6 +38,7 @@
     "eslint-plugin-react": "^7.10.0",
     "flow-bin": "^0.76.0",
     "prettier-eslint": "^8.8.2",
+    "tslint": "^5.11.0",
     "wait-on": "^2.1.0"
   },
   "build": {
