@@ -6,24 +6,43 @@ import './css/App.css';
 const electron = window.require('electron');
 const ipc = electron.ipcRenderer;
 
-ipc.on('file-opened', (contents: string) => {});
-
 type State = {
   markdownContent: string
 };
 
 class App extends Component<{}, State> {
-  constructor(props: {}) {
+  constructor() {
     super();
     this.state = {
       markdownContent: ''
     };
   }
-  
-  handleChange = (value: string) => this.setState({markdownContent: value});
+
+  handleEditorChange = (value: string) =>
+    this.setState({ markdownContent: value });
+  loadFromFile = (event: any, content: string) =>
+    this.setState({ markdownContent: content });
+
+  componentDidMount() {
+    ipc.on('file-opened', this.loadFromFile);
+    ipc.on('save-file', () =>
+      ipc.send('on-content-received', this.state.markdownContent)
+    );
+  }
+
+  componentWillUnmount() {
+    ['file-opened', 'save-file'].map(channel =>
+      ipc.removeAllListeners(channel)
+    );
+  }
 
   render() {
-    return <MarkdownEditor content={this.state.markdownContent} onChange={this.handleChange} />;
+    return (
+      <MarkdownEditor
+        content={this.state.markdownContent}
+        onChange={this.handleEditorChange}
+      />
+    );
   }
 }
 

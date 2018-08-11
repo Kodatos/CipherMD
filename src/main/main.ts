@@ -1,9 +1,17 @@
-import { app, BrowserWindow, dialog, Menu, shell } from 'electron';
+import { app, BrowserWindow, dialog, ipcMain, Menu, shell } from 'electron';
 
 import * as fs from 'fs';
 import * as path from 'path';
 
 let mainWindow: Electron.BrowserWindow | null;
+
+const markdownFileFilter: Electron.FileFilter[] = [
+  {
+    name: 'Markdown Files',
+    extensions: ['md', 'txt']
+  }
+];
+
 const template: Electron.MenuItemConstructorOptions[] = [
   {
     label: 'File',
@@ -23,7 +31,8 @@ const template: Electron.MenuItemConstructorOptions[] = [
       },
       {
         label: 'Save',
-        accelerator: 'CmdOrCtrl+S'
+        accelerator: 'CmdOrCtrl+S',
+        click: saveFile
       }
     ]
   },
@@ -69,19 +78,30 @@ const template: Electron.MenuItemConstructorOptions[] = [
 
 function openFile() {
   if (!mainWindow) return;
-  const files = dialog.showOpenDialog(mainWindow, {
+  const files: string[] = dialog.showOpenDialog(mainWindow, {
     properties: ['openFile'],
-    filters: [
-      {
-        name: 'Markdown Files',
-        extensions: ['md', 'txt']
-      }
-    ]
+    filters: markdownFileFilter
   });
-  if (!files) return;
+  if (!files || !files.length) return;
 
-  const contents = fs.readFileSync(files[0]).toString();
-  mainWindow.webContents.send('file-opened', contents);
+  const contents: string = fs.readFileSync(files[0]).toString();
+  mainWindow.webContents.send('file-opened', contents, files[0]);
+}
+
+function saveFile() {
+  if (!mainWindow) return;
+  mainWindow.webContents.send('save-file');
+  ipcMain.once('on-content-received', (_event: any, content: string) => {
+    dialog.showSaveDialog(
+      mainWindow as BrowserWindow,
+      {
+        filters: markdownFileFilter
+      },
+      (fileName: string) => {
+        fs.writeFile(fileName, content, err => console.log(err));
+      }
+    );
+  });
 }
 
 function createWindow() {

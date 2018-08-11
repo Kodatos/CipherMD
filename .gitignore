@@ -12,7 +12,6 @@
 # environment
 /.vscode
 .eslintrc.json
-tsconfig.json
 tslint.json
 
 # misc
