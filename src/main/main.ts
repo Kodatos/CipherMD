@@ -85,22 +85,26 @@ function openFile() {
   if (!files || !files.length) return;
 
   const contents: string = fs.readFileSync(files[0]).toString();
-  mainWindow.webContents.send('file-opened', contents, files[0]);
+  mainWindow.webContents.send('file-opened', files[0], contents);
 }
 
 function saveFile() {
   if (!mainWindow) return;
   mainWindow.webContents.send('save-file');
-  ipcMain.once('on-content-received', (_event: any, content: string) => {
-    dialog.showSaveDialog(
-      mainWindow as BrowserWindow,
-      {
-        filters: markdownFileFilter
-      },
-      (fileName: string) => {
-        fs.writeFile(fileName, content, err => console.log(err));
-      }
-    );
+  ipcMain.once('on-content-received', (_event: any, openedFile: string, content: string) => {
+    if (openedFile === 'Untitled') {
+      dialog.showSaveDialog(
+        mainWindow!,
+        { filters: markdownFileFilter },
+        (fileName: string) => {
+          fs.writeFile(fileName, content, err => console.log(err));
+          mainWindow!.webContents.send('file-saved', fileName);
+        }
+      );
+    } else {
+      fs.writeFile(openedFile, content, err => console.log(err));
+      mainWindow!.webContents.send('file-saved', openedFile);
+    }
   });
 }
 
