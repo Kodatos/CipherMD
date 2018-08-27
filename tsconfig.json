@@ -17,5 +17,6 @@
   },
   "files": [
     "src/main/main.ts",
+    "src/main/tests/main.test.ts"
   ]
 }

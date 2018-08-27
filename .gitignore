@@ -11,6 +11,7 @@
 
 # environment
 /.vscode
+/flow-typed
 .eslintrc.json
 tslint.json
 

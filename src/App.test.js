@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import MarkdownEditor from './components/MarkdownEditor';
+import PasswordDialog from './components/PasswordDialog';
 
 //Stub for running codemirror
 global.document.body.createTextRange = function() {
@@ -19,8 +20,13 @@ global.document.body.createTextRange = function() {
     }
   };
 };
-it('renders without crashing', () => {
+it('renders MarkdownEditor without crashing', () => {
   const div = document.createElement('div');
   ReactDOM.render(<MarkdownEditor />, div);
+  ReactDOM.unmountComponentAtNode(div);
+});
+it('renders Password dialog without crashing', () => {
+  const div = document.createElement('div');
+  ReactDOM.render(<PasswordDialog />, div);
   ReactDOM.unmountComponentAtNode(div);
 });
