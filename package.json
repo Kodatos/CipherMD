@@ -25,7 +25,7 @@
     "test": "react-scripts test --env=jsdom",
     "prets-test": "tsc",
     "postts-test": "rm -rf ./build/tests",
-    "ts-test": "jest /build/tests", 
+    "ts-test": "jest /build/tests",
     "eject": "react-scripts eject",
     "flow": "flow",
     "preelectron-dev": "tsc",

@@ -3,6 +3,8 @@ import { app, BrowserWindow, dialog, ipcMain, Menu, shell } from 'electron';
 import * as fs from 'fs';
 import * as path from 'path';
 
+import Cipher from './cipher';
+
 let mainWindow: Electron.BrowserWindow | null;
 
 const markdownFileFilter: Electron.FileFilter[] = [
@@ -11,6 +13,24 @@ const markdownFileFilter: Electron.FileFilter[] = [
     extensions: ['md', 'txt']
   }
 ];
+
+const encryptedMarkdownFileFilter: Electron.FileFilter[] = [
+  {
+    name: 'Encrypted Markdown Files',
+    extensions: ['cpmd']
+  }
+];
+
+const mergedFileFilter: Electron.FileFilter[] = [
+  {
+    name: 'CipherMD Markdown Files',
+    extensions: ['md', 'txt', 'cpmd']
+  }
+];
+
+const newEncryptedFileName = 'Encrypted Untitled';
+
+let msps: string | null = null;
 
 const template: Electron.MenuItemConstructorOptions[] = [
   {
@@ -22,7 +42,8 @@ const template: Electron.MenuItemConstructorOptions[] = [
       },
       {
         label: 'New Encrypted',
-        accelerator: 'CmdOrCtrl+Shift+N'
+        accelerator: 'CmdOrCtrl+Shift+N',
+        click: newEncrypted
       },
       {
         label: 'Open',
@@ -76,35 +97,83 @@ const template: Electron.MenuItemConstructorOptions[] = [
   }
 ];
 
+function newEncrypted() {
+  mainWindow!.webContents.send('on-password-request');
+  ipcMain.once('password-available', (_event: any, pass: string) => {
+    mainWindow!.webContents.send('file-opened', 'Encrypted Untitled', '');
+    msps = pass;
+  });
+}
+
 function openFile() {
   if (!mainWindow) return;
   const files: string[] = dialog.showOpenDialog(mainWindow, {
     properties: ['openFile'],
-    filters: markdownFileFilter
+    filters: mergedFileFilter
   });
   if (!files || !files.length) return;
 
-  const contents: string = fs.readFileSync(files[0]).toString();
-  mainWindow.webContents.send('file-opened', files[0], contents);
+  if (path.extname(files[0]) === '.cpmd') {
+    requestPassword(files[0]);
+  } else {
+    msps = null;
+    const contents: string = fs.readFileSync(files[0]).toString();
+    mainWindow.webContents.send('file-opened', files[0], contents);
+  }
+}
+
+function requestPassword(filename: string) {
+  mainWindow!.webContents.send('on-password-request');
+  ipcMain.on('password-available', (_event: any, pass: string) => {
+    decryptFile(pass, filename);
+  });
+}
+
+async function decryptFile(pass: string, filename: string) {
+  const encrypted: Buffer = fs.readFileSync(filename);
+  try {
+    const contents: string = await Cipher.decrypt(encrypted, pass);
+    mainWindow!.webContents.send('file-opened', filename, contents);
+    msps = pass;
+  } catch (error) {
+    if (error === Cipher.wrongPassError)
+      mainWindow!.webContents.send('on-wrong-password');
+    else console.error(error.message);
+  }
 }
 
 function saveFile() {
   if (!mainWindow) return;
   mainWindow.webContents.send('save-file');
-  ipcMain.once('on-content-received', (_event: any, openedFile: string, content: string) => {
-    if (openedFile === 'Untitled') {
-      dialog.showSaveDialog(
-        mainWindow!,
-        { filters: markdownFileFilter },
-        (fileName: string) => {
-          fs.writeFile(fileName, content, err => console.log(err));
-          mainWindow!.webContents.send('file-saved', fileName);
-        }
-      );
-    } else {
-      fs.writeFile(openedFile, content, err => console.log(err));
-      mainWindow!.webContents.send('file-saved', openedFile);
+  ipcMain.once(
+    'on-content-received',
+    async (_event: any, openedFile: string, content: string) => {
+      if (
+        path.basename(openedFile) === 'Untitled' ||
+        path.basename(openedFile) === newEncryptedFileName
+      ) {
+        dialog.showSaveDialog(
+          mainWindow!,
+          { filters: msps ? encryptedMarkdownFileFilter : markdownFileFilter},
+          (fileName: string) => {
+            writeFile(fileName, content);
+          }
+        );
+      } else {
+        writeFile(openedFile, content);
+      }
     }
+  );
+}
+
+async function writeFile(filename: string, content: string) {
+  let data: Buffer | string;
+  if (path.extname(filename) === '.cpmd')
+    data = await Cipher.encrypt(content, msps!);
+  else data = content;
+  fs.writeFile(filename, data, err => {
+    if (err) console.log(err);
+    mainWindow!.webContents.send('file-saved', filename);
   });
 }
 

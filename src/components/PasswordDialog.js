@@ -1,5 +1,5 @@
 //@flow
-import React, { Component} from 'react';
+import React, { Component } from 'react';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import Dialog from '@material-ui/core/Dialog';
@@ -9,20 +9,19 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 
 type Props = {
   isOpen: boolean,
+  error: boolean,
   onPasswordEntered(pass: string): void
 };
 
 type State = {
-  pass: string,
-  error: boolean
+  pass: string
 };
 
 class PasswordDialog extends Component<Props, State> {
   constructor() {
     super();
     this.state = {
-      pass: '',
-      error: false
+      pass: ''
     };
   }
 
@@ -33,7 +32,7 @@ class PasswordDialog extends Component<Props, State> {
 
   handlePasswordEntered = () => {
     this.props.onPasswordEntered(this.state.pass);
-  }
+  };
 
   render() {
     return (
@@ -42,6 +41,7 @@ class PasswordDialog extends Component<Props, State> {
           <DialogContent>
             <DialogContentText> Please enter your password </DialogContentText>
             <TextField
+              error={this.props.error}
               autoFocus
               id="pass"
               type="password"
