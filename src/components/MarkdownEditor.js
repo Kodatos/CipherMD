@@ -10,7 +10,7 @@ require('codemirror/theme/darcula.css');
 
 type Props = {
   content: string,
-  onChange(value: string): void
+  onChange(value: string): void,
 };
 
 class MarkdownEditor extends Component<Props> {
@@ -36,7 +36,10 @@ class MarkdownEditor extends Component<Props> {
           />
         </div>
         <div className="preview-pane">
-          <ReactMarkdown class="markdown-preview" source={this.props.content} />
+          <ReactMarkdown
+            class="markdown-preview"
+            source={this.props.content}
+          />
         </div>
       </SplitPane>
     );

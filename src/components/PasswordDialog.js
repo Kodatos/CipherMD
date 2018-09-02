@@ -32,6 +32,7 @@ class PasswordDialog extends Component<Props, State> {
 
   handlePasswordEntered = () => {
     this.props.onPasswordEntered(this.state.pass);
+    this.setState({ pass: '' });
   };
 
   render() {
